@@ -1,4 +1,4 @@
-package examples
+package main
 
 import (
 	"fmt"
@@ -6,13 +6,40 @@ import (
 	"github.com/akazwz/go-openai"
 )
 
-var client *openai.Client
+func main() {
+	//completionDemo()
+	completionStreamDemo()
+}
 
-func init() {
-	client = openai.NewClient("sk-xxx")
+func completionDemo() {
+	client := openai.NewClient("sk-xxx")
+	request := &openai.CompletionRequest{
+		Model:  openai.ModelTextDavinci003,
+		Prompt: []string{"Hello world"},
+	}
+	completionResponse, err := client.CreateCompletion(request)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(completionResponse.Choices[0].Text)
+}
+
+func completionStreamDemo() {
+	client := openai.NewClient("sk-xxx")
+	request := &openai.CompletionRequest{
+		Model:  openai.ModelTextDavinci003,
+		Prompt: []string{"Hello world"},
+	}
+	err := client.CreateCompletionStream(request, func(response *openai.CompletionStreamResponse) {
+		fmt.Println("response: ", response.Choices[0].Text)
+	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func ChatDemo() {
+	client := openai.NewClient("sk-xxx")
 	request := &openai.ChatCompletionRequest{
 		Model: openai.ModelGPT3Dot5Turbo,
 		Messages: []openai.Message{
@@ -27,6 +54,7 @@ func ChatDemo() {
 }
 
 func StreamChatDemo() {
+	client := openai.NewClient("sk-xxx")
 	request := &openai.ChatCompletionRequest{
 		Model: openai.ModelGPT3Dot5Turbo,
 		Messages: []openai.Message{
@@ -42,6 +70,7 @@ func StreamChatDemo() {
 }
 
 func ChatWithProxy() {
+	client := openai.NewClient("sk-xxx")
 	err := client.SetProxy("http://127.0.0.1:7890")
 	if err != nil {
 		panic(err)

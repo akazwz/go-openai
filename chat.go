@@ -18,11 +18,6 @@ const (
 	ChatMessageRoleAssistant = "assistant"
 )
 
-var (
-	DataPrefix   = []byte("data: ")
-	DoneSequence = []byte("[DONE]")
-)
-
 func (c *Client) CreateChatCompletion(request *ChatCompletionRequest) (*ChatCompletionResponse, error) {
 	reqBody, err := json.Marshal(request)
 	if err != nil {
