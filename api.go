@@ -10,12 +10,14 @@ import (
 type Client struct {
 	apiKey     string
 	httpClient *http.Client
+	apiUrl     string
 }
 
 func NewClient(apiKey string) *Client {
 	return &Client{
 		apiKey:     apiKey,
 		httpClient: http.DefaultClient,
+		apiUrl:     "https://api.openai.com",
 	}
 }
 

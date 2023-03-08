@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	CompletionUrl = "https://api.openai.com/v1/completions"
+	CompletionUrl = "/v1/completions"
 )
 
 func (c *Client) CreateCompletion(request *CompletionRequest) (*CompletionResponse, error) {
@@ -16,7 +16,7 @@ func (c *Client) CreateCompletion(request *CompletionRequest) (*CompletionRespon
 	if err != nil {
 		panic(err)
 	}
-	req, err := http.NewRequest(http.MethodPost, CompletionUrl, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(http.MethodPost, c.apiUrl+CompletionUrl, bytes.NewBuffer(reqBody))
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +37,7 @@ func (c *Client) GetCompletionStreamReader(request *CompletionRequest) (*bufio.R
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPost, CompletionUrl, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(http.MethodPost, c.apiUrl+CompletionUrl, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ChatCompletionUrl = "https://api.openai.com/v1/chat/completions"
+	ChatCompletionUrl = "/v1/chat/completions"
 )
 
 const (
@@ -23,7 +23,7 @@ func (c *Client) CreateChatCompletion(request *ChatCompletionRequest) (*ChatComp
 	if err != nil {
 		panic(err)
 	}
-	req, err := http.NewRequest(http.MethodPost, ChatCompletionUrl, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(http.MethodPost, c.apiUrl+ChatCompletionUrl, bytes.NewBuffer(reqBody))
 	if err != nil {
 		panic(err)
 	}
@@ -44,7 +44,7 @@ func (c *Client) GetChatCompletionStreamReader(request *ChatCompletionRequest) (
 		fmt.Println("Error marshalling request: ", err)
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPost, ChatCompletionUrl, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(http.MethodPost, c.apiKey+ChatCompletionUrl, bytes.NewBuffer(reqBody))
 	if err != nil {
 		fmt.Println("Error creating request: ", err)
 		return nil, err
