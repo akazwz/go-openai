@@ -8,7 +8,8 @@ import (
 
 func main() {
 	//completionDemo()
-	completionStreamDemo()
+	// completionStreamDemo()
+	GetCredit()
 }
 
 func completionDemo() {
@@ -86,4 +87,15 @@ func ChatWithProxy() {
 		panic(err)
 	}
 	fmt.Println(completionResponse.Choices[0].Message.Content)
+}
+
+func GetCredit() {
+	client := openai.NewClient("sk-xxx")
+	creditResponse, err := client.GetCredit()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(creditResponse.TotalAvailable)
+	fmt.Println(creditResponse.TotalGranted)
+	fmt.Println(creditResponse.TotalUsed)
 }

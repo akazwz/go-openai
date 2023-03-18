@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,14 +11,22 @@ import (
 type Client struct {
 	apiKey     string
 	httpClient *http.Client
-	apiUrl     string
+	apiURL     string
+}
+
+func NewClientWithConfig(config *Client) *Client {
+	return &Client{
+		apiKey:     config.apiKey,
+		httpClient: config.httpClient,
+		apiURL:     config.apiURL,
+	}
 }
 
 func NewClient(apiKey string) *Client {
 	return &Client{
 		apiKey:     apiKey,
 		httpClient: http.DefaultClient,
-		apiUrl:     "https://api.openai.com",
+		apiURL:     "https://api.openai.com",
 	}
 }
 
@@ -34,6 +43,10 @@ func (c *Client) SetProxy(proxyURL string) error {
 	return nil
 }
 
+func (c *Client) SetApiURL(apiURL string) {
+	c.apiURL = apiURL
+}
+
 func (c *Client) UseEnvProxy() {
 	c.httpClient.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
 }
@@ -44,6 +57,7 @@ func (c *Client) warpRequest(req *http.Request) {
 }
 
 func (c *Client) doRequest(req *http.Request, data any) error {
+	c.warpRequest(req)
 	response, err := c.httpClient.Do(req)
 	if err != nil {
 		return err
@@ -61,4 +75,21 @@ func (c *Client) doRequest(req *http.Request, data any) error {
 		}
 	}
 	return nil
+}
+
+func (c *Client) DoCommonPostReq(request any, url string) (any, error) {
+	reqBody, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, err
+	}
+	var data ImageResponse
+	err = c.doRequest(req, &data)
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
 }

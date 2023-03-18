@@ -8,25 +8,19 @@ import (
 )
 
 const (
-	CompletionUrl = "/v1/completions"
+	CompletionURL = "/v1/completions"
 )
 
 func (c *Client) CreateCompletion(request *CompletionRequest) (*CompletionResponse, error) {
-	reqBody, err := json.Marshal(request)
-	if err != nil {
-		panic(err)
-	}
-	req, err := http.NewRequest(http.MethodPost, c.apiUrl+CompletionUrl, bytes.NewBuffer(reqBody))
-	if err != nil {
-		panic(err)
-	}
-	c.warpRequest(req)
-	var data CompletionResponse
-	err = c.doRequest(req, &data)
+	res, err := c.DoCommonPostReq(request, c.apiURL+CompletionURL)
 	if err != nil {
 		return nil, err
 	}
-	return &data, nil
+	typedRes, ok := res.(*CompletionResponse)
+	if !ok {
+		return nil, err
+	}
+	return typedRes, nil
 }
 
 func (c *Client) GetCompletionStreamReader(request *CompletionRequest) (*bufio.Reader, error) {
@@ -37,7 +31,7 @@ func (c *Client) GetCompletionStreamReader(request *CompletionRequest) (*bufio.R
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPost, c.apiUrl+CompletionUrl, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest(http.MethodPost, c.apiURL+CompletionURL, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +50,8 @@ func (c *Client) CreateCompletionStream(request *CompletionRequest, onData func(
 		return err
 	}
 	for {
-		line, err := reader.ReadBytes('\n')
-		if err != nil {
+		line, readErr := reader.ReadBytes('\n')
+		if readErr != nil {
 			return err
 		}
 		line = bytes.TrimSpace(line)
@@ -68,7 +62,7 @@ func (c *Client) CreateCompletionStream(request *CompletionRequest, onData func(
 		if bytes.HasPrefix(line, DoneSequence) {
 			break
 		}
-		output := new(CompletionStreamResponse)
+		var output *CompletionStreamResponse
 		err = json.Unmarshal(line, output)
 		if err != nil {
 			return err
